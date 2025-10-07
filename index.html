@@ -57,11 +57,31 @@
         }
 
         .card img {
-            width: 200px;
-            height: 200px;
+            width: 280px;
+            height: 280px;
             object-fit: cover;
             border-radius: 16px;
             margin-bottom: 16px;
+        }
+
+        @media (max-width: 768px) {
+            .card {
+                width: 90vw;
+                height: 90vw;
+                max-width: 400px;
+                max-height: 400px;
+            }
+
+            .card img {
+                width: 80%;
+                height: 80%;
+                max-width: 350px;
+                max-height: 350px;
+            }
+
+            .card h2 {
+                font-size: 28px;
+            }
         }
 
         .card h2 {
@@ -175,32 +195,32 @@
     <script>
         const items = [
             { 
-                image: 'images/maison.jpeg',
+                image: 'https://via.placeholder.com/300/3b82f6/ffffff?text=Maison',
                 label: 'Maison',
                 color: 'bg-blue'
             },
             {
-                image: 'images/voiture.jpeg',
+                image: 'https://via.placeholder.com/300/ef4444/ffffff?text=Voiture',
                 label: 'Voiture',
                 color: 'bg-red'
             },
             {
-                image: 'images/porte.jpeg',
+                image: 'https://via.placeholder.com/300/f97316/ffffff?text=Porte',
                 label: 'Porte de voiture',
                 color: 'bg-orange'
             },
             {
-                image: 'images/siege.jpeg',
+                image: 'https://via.placeholder.com/300/22c55e/ffffff?text=Siege',
                 label: 'Siège',
                 color: 'bg-green'
             },
             {
-                image: 'images/ceinture.jpeg',
+                image: 'https://via.placeholder.com/300/eab308/ffffff?text=Ceinture',
                 label: 'Ceinture de sécurité',
                 color: 'bg-yellow'
             },
             {
-                image: 'images/ecole.jpeg',
+                image: 'https://via.placeholder.com/300/a855f7/ffffff?text=Ecole',
                 label: 'École',
                 color: 'bg-purple'
             }
