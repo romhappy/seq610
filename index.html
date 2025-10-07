@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Galerie Swipe Mobile</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        .gallery-container {
+            position: relative;
+            width: 100%;
+            max-width: 400px;
+            height: 400px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            touch-action: pan-y;
+        }
+
+        .card {
+            width: 320px;
+            height: 320px;
+            border-radius: 24px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            transition: transform 0.3s ease;
+        }
+
+        .card:hover {
+            transform: scale(1.05);
+        }
+
+        .card svg {
+            width: 128px;
+            height: 128px;
+            color: white;
+            margin-bottom: 16px;
+        }
+
+        .card img {
+            width: 200px;
+            height: 200px;
+            object-fit: cover;
+            border-radius: 16px;
+            margin-bottom: 16px;
+        }
+
+        .card h2 {
+            color: white;
+            font-size: 32px;
+            font-weight: bold;
+            text-align: center;
+            padding: 0 20px;
+        }
+
+        .nav-button {
+            position: absolute;
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+            color: white;
+            border: none;
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.3s ease;
+            z-index: 10;
+        }
+
+        .nav-button:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .nav-button.left {
+            left: 16px;
+        }
+
+        .nav-button.right {
+            right: 16px;
+        }
+
+        .indicators {
+            display: flex;
+            gap: 8px;
+            margin-top: 32px;
+        }
+
+        .indicator {
+            height: 8px;
+            border-radius: 4px;
+            background: rgba(255, 255, 255, 0.4);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: none;
+            padding: 0;
+        }
+
+        .indicator.active {
+            width: 32px;
+            background: white;
+        }
+
+        .indicator:not(.active) {
+            width: 8px;
+        }
+
+        .instructions {
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 14px;
+            text-align: center;
+            margin-top: 24px;
+            padding: 0 20px;
+        }
+
+        .counter {
+            color: rgba(255, 255, 255, 0.4);
+            font-size: 12px;
+            margin-top: 8px;
+        }
+
+        .bg-blue { background: #3b82f6; }
+        .bg-red { background: #ef4444; }
+        .bg-orange { background: #f97316; }
+        .bg-green { background: #22c55e; }
+        .bg-yellow { background: #eab308; }
+        .bg-purple { background: #a855f7; }
+    </style>
+</head>
+<body>
+    <div class="gallery-container" id="gallery">
+        <button class="nav-button left" id="prevBtn">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="15 18 9 12 15 6"></polyline>
+            </svg>
+        </button>
+
+        <div class="card" id="card">
+            <img id="image" src="" alt="">
+            <h2 id="label"></h2>
+        </div>
+
+        <button class="nav-button right" id="nextBtn">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="9 18 15 12 9 6"></polyline>
+            </svg>
+        </button>
+    </div>
+
+    <div class="indicators" id="indicators"></div>
+    <p class="instructions">Swipe gauche/droite ou utilisez les flèches</p>
+    <p class="counter" id="counter"></p>
+
+    <script>
+        const items = [
+            { 
+                image: 'images/maison.jpg',
+                label: 'Maison',
+                color: 'bg-blue'
+            },
+            {
+                image: 'images/voiture.jpg',
+                label: 'Voiture',
+                color: 'bg-red'
+            },
+            {
+                image: 'images/porte.jpg',
+                label: 'Porte de voiture',
+                color: 'bg-orange'
+            },
+            {
+                image: 'images/siege.jpg',
+                label: 'Siège',
+                color: 'bg-green'
+            },
+            {
+                image: 'images/ceinture.jpg',
+                label: 'Ceinture de sécurité',
+                color: 'bg-yellow'
+            },
+            {
+                image: 'images/ecole.jpg',
+                label: 'École',
+                color: 'bg-purple'
+            }
+        ];
+
+        let currentIndex = 0;
+        let touchStartX = 0;
+        let touchEndX = 0;
+
+        const card = document.getElementById('card');
+        const image = document.getElementById('image');
+        const label = document.getElementById('label');
+        const prevBtn = document.getElementById('prevBtn');
+        const nextBtn = document.getElementById('nextBtn');
+        const indicatorsContainer = document.getElementById('indicators');
+        const counter = document.getElementById('counter');
+        const gallery = document.getElementById('gallery');
+
+        function createIndicators() {
+            items.forEach((_, index) => {
+                const btn = document.createElement('button');
+                btn.className = 'indicator';
+                btn.onclick = () => goToSlide(index);
+                indicatorsContainer.appendChild(btn);
+            });
+        }
+
+        function updateDisplay() {
+            const item = items[currentIndex];
+            
+            card.className = `card ${item.color}`;
+            image.src = item.image;
+            image.alt = item.label;
+            
+            label.textContent = item.label;
+            
+            prevBtn.style.display = currentIndex === 0 ? 'none' : 'flex';
+            nextBtn.style.display = currentIndex === items.length - 1 ? 'none' : 'flex';
+            
+            document.querySelectorAll('.indicator').forEach((ind, index) => {
+                ind.classList.toggle('active', index === currentIndex);
+            });
+            
+            counter.textContent = `${currentIndex + 1} / ${items.length}`;
+        }
+
+        function goToSlide(index) {
+            currentIndex = index;
+            updateDisplay();
+        }
+
+        function goNext() {
+            if (currentIndex < items.length - 1) {
+                currentIndex++;
+                updateDisplay();
+            }
+        }
+
+        function goPrev() {
+            if (currentIndex > 0) {
+                currentIndex--;
+                updateDisplay();
+            }
+        }
+
+        prevBtn.addEventListener('click', goPrev);
+        nextBtn.addEventListener('click', goNext);
+
+        gallery.addEventListener('touchstart', (e) => {
+            touchStartX = e.changedTouches[0].screenX;
+        });
+
+        gallery.addEventListener('touchend', (e) => {
+            touchEndX = e.changedTouches[0].screenX;
+            handleSwipe();
+        });
+
+        function handleSwipe() {
+            const minSwipeDistance = 50;
+            const distance = touchStartX - touchEndX;
+            
+            if (distance > minSwipeDistance) {
+                goNext();
+            } else if (distance < -minSwipeDistance) {
+                goPrev();
+            }
+        }
+
+        createIndicators();
+        updateDisplay();
+    </script>
+</body>
+</html>
